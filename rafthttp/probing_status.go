@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/coreos/etcd/Godeps/_workspace/src/github.com/xiang90/probing"
+	"github.com/coreos/etcd/qjump"
 )
 
 var (
@@ -33,7 +34,7 @@ func addPeerToProber(p probing.Prober, id string, us []string) {
 		hus[i] = us[i] + ProbingPrefix
 	}
 
-	p.AddHTTP(id, proberInterval, hus)
+	p.AddHTTP(id, proberInterval, hus, qjump.QJ_PROBING_PRIORITY)
 
 	s, err := p.Status(id)
 	if err != nil {

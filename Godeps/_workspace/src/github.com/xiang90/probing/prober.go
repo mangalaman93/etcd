@@ -14,7 +14,7 @@ var (
 )
 
 type Prober interface {
-	AddHTTP(id string, probingInterval time.Duration, endpoints []string) error
+	AddHTTP(id string, probingInterval time.Duration, endpoints []string, priority int) error
 	Remove(id string) error
 	RemoveAll()
 	Reset(id string) error
@@ -37,7 +37,7 @@ func NewProber(tr http.RoundTripper) Prober {
 	return p
 }
 
-func (p *prober) AddHTTP(id string, probingInterval time.Duration, endpoints []string) error {
+func (p *prober) AddHTTP(id string, probingInterval time.Duration, endpoints []string, priority int) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	if _, ok := p.targets[id]; ok {
@@ -56,6 +56,7 @@ func (p *prober) AddHTTP(id string, probingInterval time.Duration, endpoints []s
 			case <-ticker.C:
 				start := time.Now()
 				req, err := http.NewRequest("GET", endpoints[pinned], nil)
+				req.Priority = priority
 				if err != nil {
 					panic(err)
 				}
