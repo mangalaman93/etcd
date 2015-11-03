@@ -30,6 +30,7 @@ import (
 	"github.com/coreos/etcd/etcdserver/stats"
 	"github.com/coreos/etcd/pkg/httputil"
 	"github.com/coreos/etcd/pkg/types"
+	"github.com/coreos/etcd/qjump"
 	"github.com/coreos/etcd/raft/raftpb"
 	"github.com/coreos/etcd/version"
 )
@@ -413,6 +414,7 @@ func (cr *streamReader) dial(t streamType) (io.ReadCloser, error) {
 	uu.Path = path.Join(t.endpoint(), cr.local.String())
 
 	req, err := http.NewRequest("GET", uu.String(), nil)
+	req.Priority = qjump.QJ_STREAM_PRIORITY
 	if err != nil {
 		cr.picker.unreachable(u)
 		return nil, fmt.Errorf("failed to make http request to %s (%v)", u, err)

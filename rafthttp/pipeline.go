@@ -28,6 +28,7 @@ import (
 	"github.com/coreos/etcd/pkg/httputil"
 	"github.com/coreos/etcd/pkg/pbutil"
 	"github.com/coreos/etcd/pkg/types"
+	"github.com/coreos/etcd/qjump"
 	"github.com/coreos/etcd/raft"
 	"github.com/coreos/etcd/raft/raftpb"
 	"github.com/coreos/etcd/version"
@@ -92,7 +93,7 @@ func (p *pipeline) handle() {
 	defer p.wg.Done()
 	for m := range p.msgc {
 		start := time.Now()
-		err := p.post(pbutil.MustMarshal(&m))
+		err := p.post(pbutil.MustMarshal(&m), qjump.GetPriority(m))
 		if err == errStopped {
 			return
 		}
@@ -123,11 +124,12 @@ func (p *pipeline) handle() {
 
 // post POSTs a data payload to a url. Returns nil if the POST succeeds,
 // error on any failure.
-func (p *pipeline) post(data []byte) (err error) {
+func (p *pipeline) post(data []byte, priority int) (err error) {
 	u := p.picker.pick()
 	uu := u
 	uu.Path = RaftPrefix
 	req, err := http.NewRequest("POST", uu.String(), bytes.NewBuffer(data))
+	req.Priority = priority
 	if err != nil {
 		p.picker.unreachable(u)
 		return err
