@@ -64,7 +64,7 @@ func getClusterFromRemotePeers(urls []string, timeout time.Duration, logerr bool
 		Timeout:   timeout,
 	}
 	for _, u := range urls {
-		resp, err := cc.Get(u + "/members")
+		resp, err := cc.GetWithPriority(u + "/members", qjump.QJ_MEMBERS_PRIORITY)
 		if err != nil {
 			if logerr {
 				plog.Warningf("could not get cluster response from %s: %v", u, err)
