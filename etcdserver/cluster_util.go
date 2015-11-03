@@ -22,6 +22,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/coreos/etcd/qjump"
 	"github.com/coreos/etcd/Godeps/_workspace/src/github.com/coreos/go-semver/semver"
 	"github.com/coreos/etcd/pkg/types"
 	"github.com/coreos/etcd/version"
@@ -224,7 +225,7 @@ func getVersion(m *Member, tr *http.Transport) (*version.Versions, error) {
 	)
 
 	for _, u := range m.PeerURLs {
-		resp, err = cc.Get(u + "/version")
+		resp, err = cc.GetWithPriority(u + "/version", qjump.QJ_VERSION_PRIORITY)
 		if err != nil {
 			plog.Warningf("failed to reach the peerURL(%s) of member %s (%v)", u, m.ID, err)
 			continue
